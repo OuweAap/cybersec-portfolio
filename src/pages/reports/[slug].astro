@@ -1,0 +1,29 @@
+---
+import { getCollection } from 'astro:content';
+import MarkdownRenderer from '../../components/MarkdownRenderer.astro';
+
+export async function getStaticPaths() {
+	const reports = await getCollection('reports');
+	return reports.map((report) => ({
+		params: { slug: report.slug },
+	}));
+}
+
+const { slug } = Astro.params;
+
+const reports = await getCollection('reports');
+const report = reports.find((r) => r.slug === slug);
+
+if (!report) {
+	return Astro.redirect('/reports');
+}
+---
+
+<Layout title={report.data.title}>
+	<div class="prose lg:prose-xl max-w-2xl mx-auto">
+		<MarkdownRenderer content={report.body} redacted={report.data.redacted} />
+	</div>
+	<nav class="mt-8">
+		<a href="/reports" class="text-primary-600 hover:text-primary-800">← All Reports</a>
+	</nav>
+</Layout>
